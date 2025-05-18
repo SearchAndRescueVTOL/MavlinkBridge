@@ -5,34 +5,45 @@ import time
 LOG_DIR = "/tmp/mavlink_logs"
 session_name = "mavwatch"
 
+
 def get_log_files():
-    return [(os.path.join(LOG_DIR, f), f.replace(".log", "")) 
-            for f in os.listdir(LOG_DIR) if f.endswith(".log")]
+    return [
+        os.path.join(LOG_DIR, f)
+        for f in sorted(os.listdir(LOG_DIR))
+        if f.endswith(".log")
+    ]
+
 
 def tmux_cmd(*args):
-    return subprocess.run(["tmux"] + list(args), check=True)
+    subprocess.run(["tmux"] + list(args), check=True)
+
 
 def setup_tmux_session():
-    subprocess.run(["tmux", "kill-session", "-t", session_name], stderr=subprocess.DEVNULL)
+    # Kill old session if it exists
+    subprocess.run(
+        ["tmux", "kill-session", "-t", session_name], stderr=subprocess.DEVNULL
+    )
 
+    # Wait until at least one log exists
     files = get_log_files()
-    if not files:
+    while not files:
         print("[INFO] No logs yet — waiting 1s for first message...")
         time.sleep(1)
         files = get_log_files()
 
-    if not files:
-        print("[ERROR] Still no logs — is mavlink_listener running?")
-        return
+    first_log = files[0]
 
-    first_path, first_tag = files[0]
-    tmux_cmd("new-session", "-d", "-s", session_name, "-n", first_tag, "tail", "-f", first_path)
+    # Create a new session with the first log
+    tmux_cmd("new-session", "-d", "-s", session_name, "tail", "-f", first_log)
 
-    for path, tag in files[1:]:
-        tmux_cmd("new-window", "-t", f"{session_name}:", "-n", tag, "tail", "-f", path)
+    # Add other logs as new panes
+    for log_path in files[1:]:
+        tmux_cmd("split-window", "-t", session_name, "-v", "tail", "-f", log_path)
+        tmux_cmd("select-layout", "-t", session_name, "tiled")
 
-    print(f"[✓] Tmux session '{session_name}' started with {len(files)} windows.")
-    print(f"    Run: tmux attach-session -t {session_name}")
+    # Attach immediately
+    tmux_cmd("attach-session", "-t", session_name)
+
 
 if __name__ == "__main__":
     setup_tmux_session()
