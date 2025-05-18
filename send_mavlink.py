@@ -4,7 +4,7 @@ import time
 # Global MAVLink connection object
 _mavlink_conn = None
 
-def init_mavlink(gcs_ip="172.31.100.102", gcs_port=14550, system_id=2, component_id=200):
+def init_mavlink(gcs_ip="172.31.100.102", gcs_port=14541, system_id=2, component_id=200):
     """
     Initializes the MAVLink connection if not already initialized.
     """
