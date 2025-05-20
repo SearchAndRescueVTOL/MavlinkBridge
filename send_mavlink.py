@@ -39,6 +39,10 @@ def send_statustext(message: str, program_id: str = "UNKNOWN", severity: int = 6
         raise RuntimeError("MAVLink not initialized. Call init_mavlink() first.")
 
     prefix = f"[{program_id}]"
+    if prefix == "[RGB]" or prefix == "[IR]":
+        message = message[33:75]
+    else:
+        message = message[:50]
     full_message = f"{prefix} {message}"[:50]
     padded = full_message.encode('utf-8')
     if len(padded) < 50:
