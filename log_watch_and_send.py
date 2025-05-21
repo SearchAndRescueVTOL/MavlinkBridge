@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import time
 from send_mavlink import init_mavlink, send_statustext
 
 # Mutex for MAVLink send operation
@@ -68,9 +69,14 @@ def get_newest_file(directory, extension=None):
 if __name__ == "__main__":
     init_mavlink()
 
+
+    time.sleep(10)
+
     # Define log files and tags
     ROSdir = get_newest_file("/home/sarv-pi/TRIGGER_GPS_LOGS/")
     IRdir = get_newest_file("/home/sarv-pi/FLIR-Capture/C-GStreamer/logs")
+    print("IRDIR", IRdir)
+    print("ROSDir", ROSdir)
     file_tag_pairs = [
         ("/home/sarv-pi/ROS_WS/src/ros_image_2_gps/xrce_agent.log", "XRCE"),
         (ROSdir, "ROS"),
