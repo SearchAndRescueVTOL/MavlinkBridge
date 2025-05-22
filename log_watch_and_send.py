@@ -81,7 +81,7 @@ if __name__ == "__main__":
         ("/home/sarv-pi/ROS_WS/src/ros_image_2_gps/xrce_agent.log", "XRCE"),
         (ROSdir, "ROS"),
         ("/home/sarv-pi/RGBCapture/rgbcapture.log", "RGB"),
-        (IRdir, "IR")
+        ("/home/sarv-pi/FLIR-Capture/capture.log", "IR")
     ]
 
     start_watchers(file_tag_pairs)
